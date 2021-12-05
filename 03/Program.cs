@@ -57,9 +57,7 @@ long GetAnswer2()
         for (int bitIndex = maxInputLength - 1; bitIndex >= 0; bitIndex--)
         {
             var (numberOfOnes, numberOfZeros) = CountBits(remainingValues, bitIndex);
-
             var leastCommonValue = numberOfZeros <= numberOfOnes ? 0 : 1;
-
             remainingValues = remainingValues.Where(x => GetBitAt(x, bitIndex) == leastCommonValue).ToArray();
 
             if (remainingValues.Length == 1)
