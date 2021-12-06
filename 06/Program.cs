@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -10,54 +9,39 @@ var input = File.ReadAllLines("input.txt")
     .Select(long.Parse)
     .ToArray();
 
-long SimulateGrowth(long[] initialState, int days)
+long SimulateGrowth(int days)
 {
-    // all fish are between 0 and 8 days old
-    var ages = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-
-    // get a dictionary that maps the number of fish for each day
-    var currentState = ages.ToDictionary(age => (long)age, age => 0L);
-    foreach (var value in initialState)
+    // get a array with the number of fish of each age
+    var state = new long[9];
+    foreach (var value in input)
     {
-        currentState[value] += 1;
+        state[value] += 1;
     }
 
     // simulate the specified number of days
     for (int day = 1; day <= days; day++)
-    {
-        // copy dictionary so we can modify it while retaining the original data 
-        // (fish added while evaluationg the current day are not considered for the current day)
-        var newState = new Dictionary<long, long>(currentState);
+    {        
+        // save number of fish with age 0
+        var zeroValue = state[0];
 
-        foreach (var age in ages)
+        // decrease counters for all fish with age >= 1 (= move values in array down one index)
+        for (int age = 1; age < state.Length; age++)
         {
-            var currentCount = currentState.GetValueOrDefault(age);
-
-            // for fish of age 0, add the same number of fish with age 8 and reset them to age 6
-            if (age == 0)
-            {
-                newState[0] -= currentCount;
-                newState[6] += currentCount;
-                newState[8] += currentCount;
-            }
-            // for all other fish, decrease their age by 1
-            else
-            {
-                newState[age] -= currentCount;
-                newState[age - 1] += currentCount;
-            }
+            state[age - 1] = state[age];
         }
 
-        // replace the current state with the new one
-        currentState = newState;
+        // no need do update newState[0] since it was overwritten in the loop above
+
+        state[8] = zeroValue;
+        state[6] += zeroValue;
     }
 
-    return currentState.Values.Sum();
+    return state.Sum();
 }
 
-long GetAnswer1() => SimulateGrowth(input, 80);
+long GetAnswer1() => SimulateGrowth(80);
 
-long GetAnswer2() => SimulateGrowth(input, 256);
+long GetAnswer2() => SimulateGrowth(256);
 
 
 var firstAnswer = GetAnswer1();
